@@ -628,7 +628,7 @@ def generate_pdf_report(scan: dict, output_path: str):
     story = []
     
     # Title
-    story.append(Paragraph("Web Application Penetration Test Report", styles['CustomTitle']))
+    story.append(Paragraph("KiKi Pentester - Security Report", styles['CustomTitle']))
     story.append(Spacer(1, 12))
     
     # Executive Summary
