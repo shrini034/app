@@ -277,7 +277,9 @@ class SecurityScanner:
                 severity="High",
                 url=url,
                 evidence=f"URL scheme is {parsed.scheme}",
-                remediation="Implement HTTPS with a valid SSL/TLS certificate"
+                remediation="Implement HTTPS with a valid SSL/TLS certificate",
+                tool_used="SSL/TLS Protocol Analyzer",
+                test_type="DAST"
             ))
         
         return vulns
@@ -304,7 +306,9 @@ class SecurityScanner:
                     severity="High",
                     url=url,
                     evidence=f"Form action: {action}, Method: {method}",
-                    remediation="Implement CSRF tokens in all forms"
+                    remediation="Implement CSRF tokens in all forms",
+                    tool_used="HTML Form Analyzer (BeautifulSoup)",
+                    test_type="SAST"
                 ))
             
             # Check for potential SQL injection points
@@ -320,7 +324,9 @@ class SecurityScanner:
                         severity="High",
                         url=url,
                         evidence=f"Input name: {input_name}",
-                        remediation="Use parameterized queries and input validation"
+                        remediation="Use parameterized queries and input validation",
+                        tool_used="SQL Injection Scanner (Pattern Matching)",
+                        test_type="SAST"
                     ))
                     break
         
