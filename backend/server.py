@@ -937,7 +937,8 @@ async def run_scan_task(scan_id: str, target_url: str):
             "pages_crawled": len(scanner.crawled_urls),
             "vulnerabilities_found": len(vulnerabilities),
             "vulnerabilities": vuln_dicts,
-            "ai_summary": None
+            "ai_summary": None,
+            "screenshots": scanner.screenshots  # Include screenshots
         }
         
         generate_pdf_report(scan_doc, str(report_path))
