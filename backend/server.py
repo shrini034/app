@@ -1036,14 +1036,14 @@ async def create_scan(scan_input: ScanCreate, background_tasks: BackgroundTasks)
 
 @api_router.get("/scans", response_model=List[dict])
 async def get_all_scans():
-    """Get all scans"""
-    scans = await db.scans.find({}, {"_id": 0}).sort("started_at", -1).to_list(100)
+    """Get all scans - excludes report_data for performance"""
+    scans = await db.scans.find({}, {"_id": 0, "report_data": 0}).sort("started_at", -1).to_list(100)
     return scans
 
 @api_router.get("/scans/{scan_id}", response_model=dict)
 async def get_scan(scan_id: str):
-    """Get scan by ID"""
-    scan = await db.scans.find_one({"id": scan_id}, {"_id": 0})
+    """Get scan by ID - excludes report_data for performance"""
+    scan = await db.scans.find_one({"id": scan_id}, {"_id": 0, "report_data": 0})
     if not scan:
         raise HTTPException(status_code=404, detail="Scan not found")
     return scan
@@ -1058,31 +1058,34 @@ async def delete_scan(scan_id: str):
 
 @api_router.get("/scans/{scan_id}/report")
 async def download_report(scan_id: str):
-    """Download PDF report"""
-    scan = await db.scans.find_one({"id": scan_id}, {"_id": 0})
+    """Download PDF report from MongoDB"""
+    # Get scan with report_data
+    scan = await db.scans.find_one({"id": scan_id}, {"_id": 0, "status": 1, "report_data": 1})
     if not scan:
         raise HTTPException(status_code=404, detail="Scan not found")
     
     if scan.get('status') != 'completed':
         raise HTTPException(status_code=400, detail="Scan not completed yet")
     
-    report_path = ROOT_DIR / "reports" / scan.get('report_path', '')
-    if not report_path.exists():
-        raise HTTPException(status_code=404, detail="Report not found")
+    report_data = scan.get('report_data')
+    if not report_data:
+        raise HTTPException(status_code=404, detail="Report not found. Please wait for scan to complete.")
     
-    # Read file content and return with proper headers
-    from starlette.responses import Response
-    with open(report_path, 'rb') as f:
-        content = f.read()
+    # Decode base64 PDF data
+    try:
+        pdf_bytes = base64.b64decode(report_data)
+    except Exception as e:
+        logger.error(f"Error decoding PDF: {e}")
+        raise HTTPException(status_code=500, detail="Error retrieving report")
     
     headers = {
         'Content-Disposition': f'attachment; filename="kiki_pentest_report_{scan_id}.pdf"',
         'Content-Type': 'application/pdf',
-        'Content-Length': str(len(content)),
+        'Content-Length': str(len(pdf_bytes)),
         'Access-Control-Expose-Headers': 'Content-Disposition'
     }
     
-    return Response(content=content, media_type="application/pdf", headers=headers)
+    return Response(content=pdf_bytes, media_type="application/pdf", headers=headers)
 
 @api_router.get("/owasp-categories")
 async def get_owasp_categories():
