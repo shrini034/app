@@ -335,40 +335,35 @@ const ScanDashboard = () => {
   const downloadReport = async () => {
     setIsDownloading(true);
     try {
-      // Method 1: Direct window open - most reliable for cross-browser downloads
       const downloadUrl = `${API}/scans/${scanId}/report`;
       
-      // Create a hidden iframe to trigger download without leaving the page
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      iframe.src = downloadUrl;
-      document.body.appendChild(iframe);
+      // Fetch the PDF as blob
+      const response = await fetch(downloadUrl);
       
-      // Also try the anchor method as fallback
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const blob = await response.blob();
+      
+      // Create blob URL and trigger download
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = `kiki_pentest_report_${scanId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
       setTimeout(() => {
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.download = `kiki_pentest_report_${scanId}.pdf`;
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
-        document.body.appendChild(link);
-        link.click();
         document.body.removeChild(link);
-      }, 500);
+        window.URL.revokeObjectURL(blobUrl);
+      }, 100);
       
-      // Cleanup iframe after download starts
-      setTimeout(() => {
-        if (iframe.parentNode) {
-          document.body.removeChild(iframe);
-        }
-      }, 5000);
-      
-      toast.success("Report download started! Check your Downloads folder.");
+      toast.success("Report downloaded successfully!");
     } catch (error) {
       console.error("Download error:", error);
-      // Fallback: Open in new tab
-      window.open(`${API}/scans/${scanId}/report`, '_blank');
-      toast.info("Report opened in new tab. Right-click and Save As to download.");
+      toast.error("Download failed. Try the 'View PDF' button instead.");
     } finally {
       setIsDownloading(false);
     }
