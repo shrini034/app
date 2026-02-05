@@ -184,14 +184,17 @@ class SecurityScanner:
         self.scan_id = scan_id
         self.crawled_urls = set()
         self.vulnerabilities = []
-        self.max_pages = 50
+        self.max_pages = 30  # Reduced for better performance
         self.timeout = 10
         self.screenshots = []
         self.screenshots_dir = ROOT_DIR / "screenshots" / scan_id
         self.screenshots_dir.mkdir(parents=True, exist_ok=True)
+        self.screenshot_enabled = True  # Can be disabled if failing
     
     async def capture_page_screenshot(self, url: str, name: str) -> Optional[str]:
         """Capture screenshot of a page"""
+        if not self.screenshot_enabled:
+            return None
         try:
             safe_name = re.sub(r'[^\w\-]', '_', name)[:50]
             screenshot_path = self.screenshots_dir / f"{safe_name}.png"
