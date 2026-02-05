@@ -349,7 +349,9 @@ class SecurityScanner:
                     severity="Low",
                     url=url,
                     evidence=f"Password field: {field.get('name', 'unknown')}",
-                    remediation="Add autocomplete='off' or 'new-password' to password fields"
+                    remediation="Add autocomplete='off' or 'new-password' to password fields",
+                    tool_used="Authentication Form Analyzer (BeautifulSoup)",
+                    test_type="SAST"
                 ))
         
         # Check for login forms over HTTP
@@ -366,7 +368,9 @@ class SecurityScanner:
                         severity="Critical",
                         url=url,
                         evidence=f"Form action: {action}",
-                        remediation="Use HTTPS for all authentication endpoints"
+                        remediation="Use HTTPS for all authentication endpoints",
+                        tool_used="Authentication Flow Analyzer",
+                        test_type="DAST"
                     ))
         
         return vulns
@@ -388,7 +392,9 @@ class SecurityScanner:
                     severity="Medium",
                     url=url,
                     evidence=f"Comment found: {comment[:100]}...",
-                    remediation="Remove sensitive information from HTML comments before deployment"
+                    remediation="Remove sensitive information from HTML comments before deployment",
+                    tool_used="Source Code Comment Analyzer (Regex)",
+                    test_type="SAST"
                 ))
                 break
         
@@ -408,7 +414,9 @@ class SecurityScanner:
                     severity="Medium",
                     url=url,
                     evidence=f"Error pattern found: {pattern}",
-                    remediation="Implement proper error handling and hide detailed error messages"
+                    remediation="Implement proper error handling and hide detailed error messages",
+                    tool_used="Error Pattern Scanner (Regex)",
+                    test_type="DAST"
                 ))
                 break
         
