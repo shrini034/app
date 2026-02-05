@@ -545,7 +545,9 @@ class SecurityScanner:
                         severity="High",
                         url=url,
                         evidence=f"Origin reflected: {acao}, Credentials: {acac}",
-                        remediation="Do not reflect arbitrary origins with credentials enabled"
+                        remediation="Do not reflect arbitrary origins with credentials enabled",
+                        tool_used="CORS Policy Analyzer (HTTPX)",
+                        test_type="DAST"
                     ))
         except:
             pass
