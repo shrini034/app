@@ -718,9 +718,10 @@ Provide: 1) Executive Summary (2 sentences) 2) Top 3 priorities 3) Key remediati
         return None, {}
 
 # PDF Report Generation
-def generate_pdf_report(scan: dict, output_path: str):
-    """Generate a detailed PDF report"""
-    doc = SimpleDocTemplate(output_path, pagesize=A4, 
+def generate_pdf_report_bytes(scan: dict) -> bytes:
+    """Generate a detailed PDF report and return as bytes (for MongoDB storage)"""
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, 
                            rightMargin=50, leftMargin=50,
                            topMargin=50, bottomMargin=50)
     
