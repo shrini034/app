@@ -147,7 +147,7 @@ class PenTestAPITester:
                 self.log(f"   Latest scan: {latest_scan.get('target_url', 'unknown')} - {latest_scan.get('status', 'unknown')}")
         return success
 
-    def wait_for_scan_completion(self, scan_id=None, max_wait=120):
+    def wait_for_scan_completion(self, scan_id=None, max_wait=60):
         """Wait for scan to complete"""
         if not scan_id:
             scan_id = self.scan_id
