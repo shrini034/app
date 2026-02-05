@@ -752,46 +752,47 @@ async def run_scan_task(scan_id: str, target_url: str):
         scanner = SecurityScanner(target_url, scan_id)
         vulnerabilities = await scanner.run_scan()
         
-        # Update with scan results
+        # Update with scan results immediately
+        vuln_dicts = [v.model_dump() for v in vulnerabilities]
         await db.scans.update_one(
             {"id": scan_id},
             {"$set": {
-                "status": "analyzing",
-                "progress": 85,
+                "status": "generating_report",
+                "progress": 90,
                 "pages_crawled": len(scanner.crawled_urls),
                 "crawled_urls": list(scanner.crawled_urls),
-                "vulnerabilities": [v.model_dump() for v in vulnerabilities],
+                "vulnerabilities": vuln_dicts,
                 "vulnerabilities_found": len(vulnerabilities)
             }}
         )
         
-        await manager.send_update(scan_id, {"status": "analyzing", "progress": 85})
+        await manager.send_update(scan_id, {"status": "generating_report", "progress": 90})
         
-        # Get AI analysis
-        ai_summary, vuln_remediations = await get_ai_analysis(vulnerabilities)
-        
-        # Update vulnerabilities with AI remediation
-        if vuln_remediations:
-            updated_vulns = []
-            for v in vulnerabilities:
-                v_dict = v.model_dump()
-                if v.id in vuln_remediations:
-                    v_dict['ai_analysis'] = vuln_remediations[v.id]
-                updated_vulns.append(v_dict)
-        else:
-            updated_vulns = [v.model_dump() for v in vulnerabilities]
-        
-        # Generate PDF report
+        # Generate PDF report first (without AI)
         reports_dir = ROOT_DIR / "reports"
         reports_dir.mkdir(exist_ok=True)
         report_filename = f"scan_report_{scan_id}.pdf"
         report_path = reports_dir / report_filename
         
-        scan_doc = await db.scans.find_one({"id": scan_id}, {"_id": 0})
-        scan_doc['vulnerabilities'] = updated_vulns
-        scan_doc['ai_summary'] = ai_summary
+        scan_doc = {
+            "id": scan_id,
+            "target_url": target_url,
+            "status": "completed",
+            "started_at": datetime.now(timezone.utc).isoformat(),
+            "pages_crawled": len(scanner.crawled_urls),
+            "vulnerabilities_found": len(vulnerabilities),
+            "vulnerabilities": vuln_dicts,
+            "ai_summary": None
+        }
         
         generate_pdf_report(scan_doc, str(report_path))
+        
+        # Try to get AI analysis with timeout (non-blocking for completion)
+        ai_summary = None
+        try:
+            ai_summary, _ = await get_ai_analysis(vulnerabilities, timeout_seconds=25)
+        except Exception as e:
+            logger.warning(f"AI analysis failed: {e}")
         
         # Final update
         completed_at = datetime.now(timezone.utc).isoformat()
@@ -801,7 +802,6 @@ async def run_scan_task(scan_id: str, target_url: str):
                 "status": "completed",
                 "progress": 100,
                 "completed_at": completed_at,
-                "vulnerabilities": updated_vulns,
                 "ai_summary": ai_summary,
                 "report_path": report_filename
             }}
