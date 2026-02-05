@@ -30,6 +30,8 @@ from emergentintegrations.llm.chat import LlmChat, UserMessage
 async def capture_screenshot(url: str, output_path: str) -> bool:
     """Capture screenshot of a URL using Playwright"""
     try:
+        import os
+        os.environ['PLAYWRIGHT_BROWSERS_PATH'] = '/pw-browsers'
         from playwright.async_api import async_playwright
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
