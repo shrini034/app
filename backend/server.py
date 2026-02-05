@@ -41,9 +41,13 @@ except ImportError:
     SCREENSHOT_ENABLED = False
     logging.warning("Playwright not available - screenshots disabled")
 
-# Screenshot capture
+# Screenshot capture - disabled in production if playwright not available
 async def capture_screenshot(url: str, output_path: str) -> bool:
     """Capture screenshot of a URL using Playwright"""
+    if not SCREENSHOT_ENABLED:
+        logger.info("Screenshots disabled - skipping capture")
+        return False
+    
     browser = None
     try:
         from playwright.async_api import async_playwright
