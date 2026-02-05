@@ -435,24 +435,35 @@ const ScanDashboard = () => {
               </p>
             </div>
             {scan?.status === "completed" && (
-              <Button 
-                data-testid="download-report-btn"
-                onClick={downloadReport}
-                disabled={isDownloading}
-                className="bg-[#00ff94] text-black font-mono font-semibold hover:bg-[#00ff94]/90 glow-primary"
-              >
-                {isDownloading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Downloading...
-                  </>
-                ) : (
-                  <>
-                    <Download className="w-4 h-4 mr-2" />
-                    Download PDF Report
-                  </>
-                )}
-              </Button>
+              <div className="flex gap-3">
+                <Button 
+                  data-testid="download-report-btn"
+                  onClick={downloadReport}
+                  disabled={isDownloading}
+                  className="bg-[#00ff94] text-black font-mono font-semibold hover:bg-[#00ff94]/90 glow-primary"
+                >
+                  {isDownloading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Downloading...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-4 h-4 mr-2" />
+                      Download PDF
+                    </>
+                  )}
+                </Button>
+                <Button 
+                  data-testid="view-report-btn"
+                  onClick={() => window.open(`${API}/scans/${scanId}/report`, '_blank')}
+                  variant="outline"
+                  className="font-mono border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+                >
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  View PDF
+                </Button>
+              </div>
             )}
           </div>
 
