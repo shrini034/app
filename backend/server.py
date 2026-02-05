@@ -951,12 +951,14 @@ async def run_scan_task(scan_id: str, target_url: str):
         
         await manager.send_update(scan_id, {"status": "generating_report", "progress": 90})
         
-        # Generate PDF report
-        reports_dir = ROOT_DIR / "reports"
-        reports_dir.mkdir(exist_ok=True)
-        report_filename = f"scan_report_{scan_id}.pdf"
-        report_path = reports_dir / report_filename
+        # Try to get AI analysis with timeout (non-blocking for completion)
+        ai_summary = None
+        try:
+            ai_summary, _ = await get_ai_analysis(vulnerabilities, timeout_seconds=20)
+        except Exception as e:
+            logger.warning(f"AI analysis failed: {e}")
         
+        # Generate PDF report and store in MongoDB (not filesystem)
         scan_doc = {
             "id": scan_id,
             "target_url": target_url,
@@ -965,24 +967,19 @@ async def run_scan_task(scan_id: str, target_url: str):
             "pages_crawled": len(scanner.crawled_urls),
             "vulnerabilities_found": len(vulnerabilities),
             "vulnerabilities": vuln_dicts,
-            "ai_summary": None,
-            "screenshots": scanner.screenshots if scanner else []
+            "ai_summary": ai_summary
         }
         
+        pdf_data = None
         try:
-            generate_pdf_report(scan_doc, str(report_path))
+            pdf_bytes = generate_pdf_report_bytes(scan_doc)
+            # Store PDF as base64 in MongoDB
+            pdf_data = base64.b64encode(pdf_bytes).decode('utf-8')
+            logger.info(f"PDF generated: {len(pdf_bytes)} bytes")
         except Exception as e:
             logger.error(f"PDF generation failed: {e}")
-            report_filename = None
         
-        # Try to get AI analysis with timeout (non-blocking for completion)
-        ai_summary = None
-        try:
-            ai_summary, _ = await get_ai_analysis(vulnerabilities, timeout_seconds=20)
-        except Exception as e:
-            logger.warning(f"AI analysis failed: {e}")
-        
-        # Final update
+        # Final update - store PDF in database
         completed_at = datetime.now(timezone.utc).isoformat()
         await db.scans.update_one(
             {"id": scan_id},
@@ -991,7 +988,7 @@ async def run_scan_task(scan_id: str, target_url: str):
                 "progress": 100,
                 "completed_at": completed_at,
                 "ai_summary": ai_summary,
-                "report_path": report_filename
+                "report_data": pdf_data  # Store PDF as base64 in MongoDB
             }}
         )
         
