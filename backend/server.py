@@ -17,12 +17,30 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 import re
 import json
+import base64
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
+from io import BytesIO
 from emergentintegrations.llm.chat import LlmChat, UserMessage
+
+# Screenshot capture
+async def capture_screenshot(url: str, output_path: str) -> bool:
+    """Capture screenshot of a URL using Playwright"""
+    try:
+        from playwright.async_api import async_playwright
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(headless=True)
+            page = await browser.new_page(viewport={"width": 1280, "height": 800})
+            await page.goto(url, wait_until="networkidle", timeout=30000)
+            await page.screenshot(path=output_path, full_page=False)
+            await browser.close()
+            return True
+    except Exception as e:
+        logger.error(f"Screenshot capture failed for {url}: {e}")
+        return False
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
