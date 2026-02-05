@@ -608,14 +608,10 @@ class SecurityScanner:
             await manager.send_update(self.scan_id, {"status": "crawling", "progress": 10})
             await self.crawl(self.target_url)
             
-            # Capture main page screenshot
-            await manager.send_update(self.scan_id, {"status": "capturing_screenshots", "progress": 15})
-            main_screenshot = await self.capture_page_screenshot(self.target_url, "main_page")
-            
             # Phase 2: Scan each URL
-            total_urls = len(self.crawled_urls)
+            total_urls = len(self.crawled_urls) if self.crawled_urls else 1
             for i, url in enumerate(self.crawled_urls):
-                progress = 20 + int((i / total_urls) * 60)
+                progress = 20 + int((i / total_urls) * 70)
                 await manager.send_update(self.scan_id, {
                     "status": "scanning",
                     "progress": progress,
@@ -624,13 +620,6 @@ class SecurityScanner:
                 })
                 
                 vulns = await self.scan_url(url)
-                
-                # Capture screenshot for pages with vulnerabilities
-                if vulns and i < 5:  # Limit screenshots to first 5 pages with vulns
-                    screenshot_path = await self.capture_page_screenshot(url, f"vuln_page_{i}")
-                    for v in vulns:
-                        v.screenshot_path = screenshot_path
-                
                 self.vulnerabilities.extend(vulns)
             
             # Remove duplicates
