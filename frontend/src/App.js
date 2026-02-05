@@ -26,7 +26,9 @@ import {
   Info,
   History,
   Home as HomeIcon,
-  Zap
+  Zap,
+  User,
+  Heart
 } from "lucide-react";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
@@ -86,7 +88,7 @@ const Navigation = () => {
               <Shield className="w-6 h-6 text-[#00ff94]" />
             </div>
             <div>
-              <h1 className="font-mono text-lg font-bold text-white tracking-tight">PenTest Pro</h1>
+              <h1 className="font-mono text-lg font-bold text-white tracking-tight">KiKi Pentester</h1>
               <p className="text-xs text-zinc-500">OWASP Top 10 2025</p>
             </div>
           </Link>
@@ -111,6 +113,16 @@ const Navigation = () => {
                   </Link>
                 </TooltipTrigger>
                 <TooltipContent>Scan History</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link to="/about">
+                    <Button variant="ghost" size="icon" className="text-zinc-400 hover:text-white hover:bg-white/5">
+                      <User className="w-5 h-5" />
+                    </Button>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent>About</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
@@ -174,11 +186,11 @@ const LandingPage = () => {
               Powered by AI
             </Badge>
             <h1 className="font-mono text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 tracking-tight">
-              Automated Web
-              <span className="text-[#00ff94] block mt-2">Penetration Testing</span>
+              KiKi Pentester
+              <span className="text-[#00ff94] block mt-2">Security Scanner</span>
             </h1>
             <p className="text-zinc-400 text-base max-w-2xl mx-auto">
-              Comprehensive security assessment based on OWASP Top 10 2025. 
+              Comprehensive web application security assessment based on OWASP Top 10 2025. 
               Active exploitation testing, AI-powered analysis, and detailed remediation guidance.
             </p>
           </div>
@@ -189,7 +201,7 @@ const LandingPage = () => {
               <div className="terminal-dot bg-red-500" />
               <div className="terminal-dot bg-yellow-500" />
               <div className="terminal-dot bg-green-500" />
-              <span className="text-zinc-500 text-sm ml-2 font-mono">target_scanner.sh</span>
+              <span className="text-zinc-500 text-sm ml-2 font-mono">kiki_scanner.sh</span>
             </div>
             <form onSubmit={startScan} className="p-6">
               <div className="flex items-center gap-2 mb-4">
@@ -270,6 +282,15 @@ const LandingPage = () => {
           </div>
         </div>
       </main>
+      
+      {/* Footer */}
+      <footer className="py-6 border-t border-zinc-800/50">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <p className="text-zinc-500 text-sm">
+            © 2026 KiKi Pentester. Created by <Link to="/about" className="text-[#00ff94] hover:underline">Shrinivas Natarajan</Link>
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };
@@ -279,6 +300,7 @@ const ScanDashboard = () => {
   const { scanId } = useParams();
   const [scan, setScan] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDownloading, setIsDownloading] = useState(false);
   const navigate = useNavigate();
 
   const fetchScan = useCallback(async () => {
@@ -311,20 +333,39 @@ const ScanDashboard = () => {
   }, [scan?.status]);
 
   const downloadReport = async () => {
+    setIsDownloading(true);
     try {
-      const response = await axios.get(`${API}/scans/${scanId}/report`, {
-        responseType: "blob"
+      const response = await fetch(`${API}/scans/${scanId}/report`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/pdf',
+        },
       });
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+      
+      if (!response.ok) {
+        throw new Error('Failed to download report');
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", `pentest_report_${scanId}.pdf`);
+      link.download = `kiki_pentest_report_${scanId}.pdf`;
       document.body.appendChild(link);
       link.click();
-      link.remove();
+      
+      // Cleanup
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      }, 100);
+      
       toast.success("Report downloaded successfully!");
     } catch (error) {
-      toast.error("Failed to download report");
+      console.error("Download error:", error);
+      toast.error("Failed to download report. Please try again.");
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -392,10 +433,20 @@ const ScanDashboard = () => {
               <Button 
                 data-testid="download-report-btn"
                 onClick={downloadReport}
+                disabled={isDownloading}
                 className="bg-[#00ff94] text-black font-mono font-semibold hover:bg-[#00ff94]/90 glow-primary"
               >
-                <Download className="w-4 h-4 mr-2" />
-                Download PDF Report
+                {isDownloading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Downloading...
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4 mr-2" />
+                    Download PDF Report
+                  </>
+                )}
               </Button>
             )}
           </div>
@@ -887,6 +938,122 @@ const HistoryPage = () => {
   );
 };
 
+// About Page
+const AboutPage = () => {
+  return (
+    <div className="min-h-screen grid-bg">
+      <Navigation />
+      
+      <main className="pt-24 pb-12 px-6">
+        <div className="max-w-3xl mx-auto">
+          {/* Hero */}
+          <div className="text-center mb-12 fade-in">
+            <div className="inline-flex p-4 rounded-2xl bg-[#00ff94]/10 border border-[#00ff94]/30 mb-6">
+              <Shield className="w-16 h-16 text-[#00ff94]" />
+            </div>
+            <h1 className="font-mono text-4xl font-bold text-white mb-4">KiKi Pentester</h1>
+            <p className="text-zinc-400 text-lg">Automated Web Application Security Scanner</p>
+          </div>
+
+          {/* About Card */}
+          <Card className="bg-[#0a0a0a]/80 border-zinc-800/50 mb-8 fade-in-delay-1">
+            <CardHeader>
+              <CardTitle className="font-mono text-white flex items-center gap-2">
+                <Info className="w-5 h-5 text-[#6e44ff]" />
+                About This Application
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 text-zinc-300">
+              <p>
+                KiKi Pentester is a comprehensive automated web application penetration testing tool 
+                designed to identify security vulnerabilities based on the OWASP Top 10 2025 framework.
+              </p>
+              <p>
+                The tool performs both Static Application Security Testing (SAST) and Dynamic Application 
+                Security Testing (DAST) to provide thorough security assessments of web applications.
+              </p>
+              <p>
+                Powered by Claude Sonnet 4.5 AI, KiKi Pentester provides intelligent vulnerability 
+                analysis and actionable remediation guidance to help developers and security professionals 
+                secure their applications.
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Features */}
+          <Card className="bg-[#0a0a0a]/80 border-zinc-800/50 mb-8 fade-in-delay-2">
+            <CardHeader>
+              <CardTitle className="font-mono text-white flex items-center gap-2">
+                <Zap className="w-5 h-5 text-[#00ff94]" />
+                Key Features
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3 text-zinc-300">
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-[#00ff94] shrink-0 mt-0.5" />
+                  <span>Complete OWASP Top 10 2025 vulnerability coverage</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-[#00ff94] shrink-0 mt-0.5" />
+                  <span>Automated web crawling and page discovery</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-[#00ff94] shrink-0 mt-0.5" />
+                  <span>AI-powered security analysis and remediation suggestions</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-[#00ff94] shrink-0 mt-0.5" />
+                  <span>Detailed PDF vulnerability reports</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-[#00ff94] shrink-0 mt-0.5" />
+                  <span>Real-time scan progress tracking</span>
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          {/* Owner/Creator */}
+          <Card className="bg-[#0a0a0a]/80 border-zinc-800/50 glow-secondary fade-in-delay-3">
+            <CardHeader>
+              <CardTitle className="font-mono text-white flex items-center gap-2">
+                <User className="w-5 h-5 text-[#6e44ff]" />
+                Creator & Owner
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-6">
+                <div className="p-4 rounded-full bg-[#6e44ff]/10 border border-[#6e44ff]/30">
+                  <User className="w-12 h-12 text-[#6e44ff]" />
+                </div>
+                <div>
+                  <h3 className="font-mono text-2xl font-bold text-white mb-2">Shrinivas Natarajan</h3>
+                  <p className="text-zinc-400 mb-3">Creator, Owner & Lead Developer</p>
+                  <p className="text-zinc-500 text-sm">
+                    KiKi Pentester is owned and maintained by Shrinivas Natarajan. 
+                    All rights reserved © 2026.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Footer */}
+          <div className="text-center mt-12 fade-in-delay-3">
+            <p className="text-zinc-500 text-sm flex items-center justify-center gap-2">
+              Made with <Heart className="w-4 h-4 text-red-400" /> by Shrinivas Natarajan
+            </p>
+            <p className="text-zinc-600 text-xs mt-2">
+              www.kikipentester.com
+            </p>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
 // Main App
 function App() {
   return (
@@ -906,6 +1073,7 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/scan/:scanId" element={<ScanDashboard />} />
           <Route path="/history" element={<HistoryPage />} />
+          <Route path="/about" element={<AboutPage />} />
         </Routes>
       </BrowserRouter>
     </div>
