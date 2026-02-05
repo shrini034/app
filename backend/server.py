@@ -441,7 +441,9 @@ class SecurityScanner:
                         severity="Medium",
                         url=url,
                         evidence=f"Script: {src}",
-                        remediation="Add integrity attribute with hash to external scripts"
+                        remediation="Add integrity attribute with hash to external scripts",
+                        tool_used="SRI Integrity Checker (BeautifulSoup)",
+                        test_type="SAST"
                     ))
                     break
         
@@ -458,7 +460,9 @@ class SecurityScanner:
                     severity="Medium",
                     url=url,
                     evidence="HTTP resources found on HTTPS page",
-                    remediation="Ensure all resources are loaded over HTTPS"
+                    remediation="Ensure all resources are loaded over HTTPS",
+                    tool_used="Mixed Content Detector",
+                    test_type="SAST"
                 ))
         
         return vulns
@@ -485,7 +489,9 @@ class SecurityScanner:
                             severity="Critical" if path in ['/.git', '/.env', '/backup'] else "High",
                             url=test_url,
                             evidence=f"HTTP {response.status_code} response",
-                            remediation="Restrict access to sensitive paths or remove them from production"
+                            remediation="Restrict access to sensitive paths or remove them from production",
+                            tool_used="Directory Bruteforce Scanner (HTTPX)",
+                            test_type="DAST"
                         ))
                     elif response.status_code in [401, 403]:
                         vulns.append(Vulnerability(
@@ -496,7 +502,9 @@ class SecurityScanner:
                             severity="Info",
                             url=test_url,
                             evidence=f"HTTP {response.status_code} response",
-                            remediation="Ensure strong authentication is required"
+                            remediation="Ensure strong authentication is required",
+                            tool_used="Directory Bruteforce Scanner (HTTPX)",
+                            test_type="DAST"
                         ))
                 except:
                     pass
@@ -524,7 +532,9 @@ class SecurityScanner:
                         severity="Medium",
                         url=url,
                         evidence=f"Access-Control-Allow-Origin: {acao}",
-                        remediation="Configure CORS to only allow trusted origins"
+                        remediation="Configure CORS to only allow trusted origins",
+                        tool_used="CORS Policy Analyzer (HTTPX)",
+                        test_type="DAST"
                     ))
                 elif acao == 'https://evil.com' and acac.lower() == 'true':
                     vulns.append(Vulnerability(
