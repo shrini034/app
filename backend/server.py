@@ -26,26 +26,32 @@ from reportlab.lib.units import inch
 from io import BytesIO
 from emergentintegrations.llm.chat import LlmChat, UserMessage
 
+# Set Playwright browser path early
+import os
+os.environ['PLAYWRIGHT_BROWSERS_PATH'] = '/pw-browsers'
+
+ROOT_DIR = Path(__file__).parent
+load_dotenv(ROOT_DIR / '.env')
+
 # Screenshot capture
 async def capture_screenshot(url: str, output_path: str) -> bool:
     """Capture screenshot of a URL using Playwright"""
     try:
-        import os
-        os.environ['PLAYWRIGHT_BROWSERS_PATH'] = '/pw-browsers'
         from playwright.async_api import async_playwright
         async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
+            browser = await p.chromium.launch(
+                headless=True,
+                args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+            )
             page = await browser.new_page(viewport={"width": 1280, "height": 800})
-            await page.goto(url, wait_until="networkidle", timeout=30000)
+            await page.goto(url, wait_until="domcontentloaded", timeout=30000)
+            await page.wait_for_timeout(2000)  # Wait for page to render
             await page.screenshot(path=output_path, full_page=False)
             await browser.close()
             return True
     except Exception as e:
         logger.error(f"Screenshot capture failed for {url}: {e}")
         return False
-
-ROOT_DIR = Path(__file__).parent
-load_dotenv(ROOT_DIR / '.env')
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
