@@ -36,21 +36,40 @@ load_dotenv(ROOT_DIR / '.env')
 # Screenshot capture
 async def capture_screenshot(url: str, output_path: str) -> bool:
     """Capture screenshot of a URL using Playwright"""
+    browser = None
     try:
         from playwright.async_api import async_playwright
         async with async_playwright() as p:
             browser = await p.chromium.launch(
                 headless=True,
-                args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+                args=[
+                    '--no-sandbox', 
+                    '--disable-setuid-sandbox', 
+                    '--disable-dev-shm-usage',
+                    '--disable-gpu',
+                    '--single-process',
+                    '--no-zygote'
+                ]
             )
-            page = await browser.new_page(viewport={"width": 1280, "height": 800})
-            await page.goto(url, wait_until="domcontentloaded", timeout=30000)
-            await page.wait_for_timeout(2000)  # Wait for page to render
-            await page.screenshot(path=output_path, full_page=False)
+            context = await browser.new_context(
+                viewport={"width": 1280, "height": 800},
+                ignore_https_errors=True
+            )
+            page = await context.new_page()
+            await page.goto(url, wait_until="domcontentloaded", timeout=20000)
+            await page.wait_for_timeout(1500)
+            await page.screenshot(path=output_path, full_page=False, type='png')
+            await context.close()
             await browser.close()
+            logger.info(f"Screenshot captured successfully: {output_path}")
             return True
     except Exception as e:
         logger.error(f"Screenshot capture failed for {url}: {e}")
+        if browser:
+            try:
+                await browser.close()
+            except:
+                pass
         return False
 
 # MongoDB connection
