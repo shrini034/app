@@ -932,6 +932,7 @@ def generate_pdf_report(scan: dict, output_path: str):
 # Background scan task
 async def run_scan_task(scan_id: str, target_url: str):
     """Background task to run the security scan"""
+    scanner = None
     try:
         # Update status
         await db.scans.update_one(
@@ -939,9 +940,16 @@ async def run_scan_task(scan_id: str, target_url: str):
             {"$set": {"status": "crawling", "progress": 5}}
         )
         
-        # Run scanner
+        # Run scanner with timeout
         scanner = SecurityScanner(target_url, scan_id)
-        vulnerabilities = await scanner.run_scan()
+        try:
+            vulnerabilities = await asyncio.wait_for(
+                scanner.run_scan(),
+                timeout=180  # 3 minute timeout for scanning
+            )
+        except asyncio.TimeoutError:
+            logger.warning(f"Scan timed out for {target_url}")
+            vulnerabilities = scanner.vulnerabilities  # Use whatever we found so far
         
         # Update with scan results immediately
         vuln_dicts = [v.model_dump() for v in vulnerabilities]
@@ -959,7 +967,7 @@ async def run_scan_task(scan_id: str, target_url: str):
         
         await manager.send_update(scan_id, {"status": "generating_report", "progress": 90})
         
-        # Generate PDF report first (without AI)
+        # Generate PDF report
         reports_dir = ROOT_DIR / "reports"
         reports_dir.mkdir(exist_ok=True)
         report_filename = f"scan_report_{scan_id}.pdf"
@@ -974,15 +982,19 @@ async def run_scan_task(scan_id: str, target_url: str):
             "vulnerabilities_found": len(vulnerabilities),
             "vulnerabilities": vuln_dicts,
             "ai_summary": None,
-            "screenshots": scanner.screenshots  # Include screenshots
+            "screenshots": scanner.screenshots if scanner else []
         }
         
-        generate_pdf_report(scan_doc, str(report_path))
+        try:
+            generate_pdf_report(scan_doc, str(report_path))
+        except Exception as e:
+            logger.error(f"PDF generation failed: {e}")
+            report_filename = None
         
         # Try to get AI analysis with timeout (non-blocking for completion)
         ai_summary = None
         try:
-            ai_summary, _ = await get_ai_analysis(vulnerabilities, timeout_seconds=25)
+            ai_summary, _ = await get_ai_analysis(vulnerabilities, timeout_seconds=20)
         except Exception as e:
             logger.warning(f"AI analysis failed: {e}")
         
