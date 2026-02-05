@@ -905,42 +905,13 @@ def generate_pdf_report_bytes(scan: dict) -> bytes:
             vuln_info += f"<b>AI Analysis:</b> {vuln.get('ai_analysis', '')}<br/>"
         
         story.append(Paragraph(vuln_info, styles['Normal']))
-        
-        # Add screenshot if available
-        screenshot_path = vuln.get('screenshot_path')
-        if screenshot_path and os.path.exists(screenshot_path):
-            try:
-                img = Image(screenshot_path, width=5*inch, height=3*inch)
-                story.append(Spacer(1, 10))
-                story.append(Paragraph("<b>Screenshot Evidence:</b>", styles['Normal']))
-                story.append(Spacer(1, 5))
-                story.append(img)
-            except Exception as e:
-                logger.error(f"Error adding screenshot to PDF: {e}")
-        
         story.append(Spacer(1, 15))
     
-    # Add main page screenshot section
-    screenshots = scan.get('screenshots', [])
-    if screenshots:
-        story.append(PageBreak())
-        story.append(Paragraph("Target Application Screenshots", styles['CustomTitle']))
-        story.append(Spacer(1, 10))
-        
-        for i, screenshot_path in enumerate(screenshots[:5]):  # Limit to 5 screenshots
-            if os.path.exists(screenshot_path):
-                try:
-                    story.append(Paragraph(f"<b>Screenshot {i+1}:</b> {os.path.basename(screenshot_path)}", styles['Normal']))
-                    story.append(Spacer(1, 5))
-                    img = Image(screenshot_path, width=5.5*inch, height=3.5*inch)
-                    story.append(img)
-                    story.append(Spacer(1, 15))
-                except Exception as e:
-                    logger.error(f"Error adding main screenshot to PDF: {e}")
-    
-    # Build PDF
+    # Build PDF and return bytes
     doc.build(story)
-    return output_path
+    pdf_bytes = buffer.getvalue()
+    buffer.close()
+    return pdf_bytes
 
 # Background scan task
 async def run_scan_task(scan_id: str, target_url: str):
