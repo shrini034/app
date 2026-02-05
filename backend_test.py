@@ -95,7 +95,7 @@ class PenTestAPITester:
                 self.log(f"   ⚠️  Missing categories: {missing}")
         return success
 
-    def test_create_scan(self, target_url="https://example.com"):
+    def test_create_scan(self, target_url="https://httpbin.org"):
         """Test scan creation"""
         success, response = self.run_test(
             "Create Scan",
