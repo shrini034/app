@@ -101,6 +101,7 @@ class Vulnerability(BaseModel):
     url: str
     remediation: Optional[str] = None
     ai_analysis: Optional[str] = None
+    screenshot_path: Optional[str] = None
 
 class Scan(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -113,6 +114,7 @@ class Scan(BaseModel):
     pages_crawled: int = 0
     vulnerabilities_found: int = 0
     crawled_urls: List[str] = []
+    screenshots: List[str] = []  # List of screenshot paths
     vulnerabilities: List[Vulnerability] = []
     ai_summary: Optional[str] = None
     report_path: Optional[str] = None
