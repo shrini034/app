@@ -786,6 +786,47 @@ def generate_pdf_report(scan: dict, output_path: str):
     # Detailed Findings
     story.append(Paragraph("Detailed Vulnerability Findings", styles['CustomTitle']))
     
+    # Add Tools Used section
+    story.append(Paragraph("Testing Tools Used", styles['SectionHeader']))
+    tools_used = set()
+    for vuln in scan.get('vulnerabilities', []):
+        if vuln.get('tool_used'):
+            tools_used.add(vuln.get('tool_used'))
+    
+    tools_data = [["Tool Name", "Test Type"]]
+    tool_types = {
+        "HTTP Header Analyzer (HTTPX)": "DAST",
+        "SSL/TLS Protocol Analyzer": "DAST",
+        "HTML Form Analyzer (BeautifulSoup)": "SAST",
+        "SQL Injection Scanner (Pattern Matching)": "SAST",
+        "Authentication Form Analyzer (BeautifulSoup)": "SAST",
+        "Authentication Flow Analyzer": "DAST",
+        "Source Code Comment Analyzer (Regex)": "SAST",
+        "Error Pattern Scanner (Regex)": "DAST",
+        "SRI Integrity Checker (BeautifulSoup)": "SAST",
+        "Mixed Content Detector": "SAST",
+        "Directory Bruteforce Scanner (HTTPX)": "DAST",
+        "CORS Policy Analyzer (HTTPX)": "DAST",
+        "Web Crawler (HTTPX + BeautifulSoup)": "DAST",
+        "Screenshot Capture (Playwright)": "DAST"
+    }
+    for tool in sorted(tools_used):
+        test_type = tool_types.get(tool, "Both")
+        tools_data.append([tool, test_type])
+    
+    if len(tools_data) > 1:
+        tools_table = Table(tools_data, colWidths=[4*inch, 1.5*inch])
+        tools_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1a1a1a')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('GRID', (0, 0), (-1, -1), 1, colors.grey),
+        ]))
+        story.append(tools_table)
+    story.append(Spacer(1, 20))
+    
     # Sort by severity
     severity_order = {"Critical": 0, "High": 1, "Medium": 2, "Low": 3, "Info": 4}
     sorted_vulns = sorted(scan.get('vulnerabilities', []), 
@@ -803,6 +844,10 @@ def generate_pdf_report(scan: dict, output_path: str):
         <b>URL:</b> {vuln.get('url', '')}<br/>
         <b>Description:</b> {vuln.get('description', '')}<br/>
         """
+        if vuln.get('tool_used'):
+            vuln_info += f"<b>Detection Tool:</b> {vuln.get('tool_used', '')}<br/>"
+        if vuln.get('test_type'):
+            vuln_info += f"<b>Test Type:</b> {vuln.get('test_type', '')}<br/>"
         if vuln.get('evidence'):
             vuln_info += f"<b>Evidence:</b> {vuln.get('evidence', '')}<br/>"
         if vuln.get('remediation'):
@@ -811,6 +856,19 @@ def generate_pdf_report(scan: dict, output_path: str):
             vuln_info += f"<b>AI Analysis:</b> {vuln.get('ai_analysis', '')}<br/>"
         
         story.append(Paragraph(vuln_info, styles['Normal']))
+        
+        # Add screenshot if available
+        screenshot_path = vuln.get('screenshot_path')
+        if screenshot_path and os.path.exists(screenshot_path):
+            try:
+                img = Image(screenshot_path, width=5*inch, height=3*inch)
+                story.append(Spacer(1, 10))
+                story.append(Paragraph("<b>Screenshot Evidence:</b>", styles['Normal']))
+                story.append(Spacer(1, 5))
+                story.append(img)
+            except Exception as e:
+                logger.error(f"Error adding screenshot to PDF: {e}")
+        
         story.append(Spacer(1, 15))
     
     # Build PDF
