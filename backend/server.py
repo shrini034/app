@@ -102,6 +102,8 @@ class Vulnerability(BaseModel):
     remediation: Optional[str] = None
     ai_analysis: Optional[str] = None
     screenshot_path: Optional[str] = None
+    tool_used: Optional[str] = None  # Tool/technique used for detection
+    test_type: Optional[str] = None  # SAST, DAST, or Both
 
 class Scan(BaseModel):
     model_config = ConfigDict(extra="ignore")
