@@ -871,6 +871,24 @@ def generate_pdf_report(scan: dict, output_path: str):
         
         story.append(Spacer(1, 15))
     
+    # Add main page screenshot section
+    screenshots = scan.get('screenshots', [])
+    if screenshots:
+        story.append(PageBreak())
+        story.append(Paragraph("Target Application Screenshots", styles['CustomTitle']))
+        story.append(Spacer(1, 10))
+        
+        for i, screenshot_path in enumerate(screenshots[:5]):  # Limit to 5 screenshots
+            if os.path.exists(screenshot_path):
+                try:
+                    story.append(Paragraph(f"<b>Screenshot {i+1}:</b> {os.path.basename(screenshot_path)}", styles['Normal']))
+                    story.append(Spacer(1, 5))
+                    img = Image(screenshot_path, width=5.5*inch, height=3.5*inch)
+                    story.append(img)
+                    story.append(Spacer(1, 15))
+                except Exception as e:
+                    logger.error(f"Error adding main screenshot to PDF: {e}")
+    
     # Build PDF
     doc.build(story)
     return output_path
