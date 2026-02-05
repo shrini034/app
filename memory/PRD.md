@@ -11,6 +11,8 @@ Create an application that can perform Automated Web Application Penetration tes
 - OWASP Top 10: 2025 coverage
 - Application name: KiKi Pentester
 - Owner: Shrinivas Natarajan
+- Screenshots as evidence in reports
+- Tool names for each vulnerability finding
 
 ## Architecture
 
@@ -20,28 +22,22 @@ Create an application that can perform Automated Web Application Penetration tes
 - **Database**: MongoDB
 - **AI**: Claude Sonnet 4.5 via Emergent LLM Key
 - **PDF Generation**: ReportLab
+- **Screenshot Capture**: Playwright
 
-### Key Components
-1. **Security Scanner** - Crawls websites and performs security checks
-2. **AI Analysis Engine** - Uses Claude for vulnerability analysis
-3. **Report Generator** - Creates PDF reports
-4. **WebSocket Manager** - Real-time scan progress updates
-
-## User Personas
-1. **Security Professionals** - Need comprehensive vulnerability assessments
-2. **Developers** - Want to test their apps before deployment
-3. **DevOps Engineers** - Integrate security testing into CI/CD
-4. **IT Administrators** - Regular security audits
-
-## Core Requirements (Static)
-- URL input for target website
-- OWASP Top 10 2025 vulnerability scanning
-- Real-time progress tracking
-- Severity classification (Critical, High, Medium, Low, Info)
-- AI-powered remediation suggestions
-- PDF report download
-- Scan history management
-- About page with owner information
+### Security Testing Tools Used
+| Tool Name | Test Type | Purpose |
+|-----------|-----------|---------|
+| HTTP Header Analyzer (HTTPX) | DAST | Security header detection |
+| SSL/TLS Protocol Analyzer | DAST | Cryptographic issue detection |
+| HTML Form Analyzer (BeautifulSoup) | SAST | Form security analysis |
+| SQL Injection Scanner | SAST | Injection point detection |
+| Authentication Flow Analyzer | DAST | Auth vulnerability detection |
+| Source Code Comment Analyzer | SAST | Sensitive info in comments |
+| Error Pattern Scanner | DAST | Error disclosure detection |
+| SRI Integrity Checker | SAST | Subresource integrity |
+| Directory Bruteforce Scanner | DAST | Exposed path detection |
+| CORS Policy Analyzer | DAST | CORS misconfiguration |
+| Screenshot Capture (Playwright) | DAST | Visual evidence capture |
 
 ## What's Been Implemented (Feb 5, 2026)
 
@@ -56,7 +52,9 @@ Create an application that can perform Automated Web Application Penetration tes
 - [x] CORS misconfiguration detection
 - [x] Access control path scanning
 - [x] Claude Sonnet 4.5 AI analysis
-- [x] PDF report generation
+- [x] PDF report generation with screenshots
+- [x] Screenshot capture using Playwright
+- [x] Tool names and test types for each finding
 - [x] WebSocket real-time updates
 - [x] Scan CRUD operations
 
@@ -64,50 +62,27 @@ Create an application that can perform Automated Web Application Penetration tes
 - [x] Landing page with terminal-style URL input
 - [x] Scan dashboard with real-time progress
 - [x] Vulnerability results with severity breakdown
+- [x] Tool names and test type badges in UI
 - [x] OWASP Top 10 2025 coverage display
 - [x] AI Analysis section
-- [x] PDF download functionality (fixed)
+- [x] PDF download and view buttons
 - [x] Scan history page
 - [x] About page with owner: Shrinivas Natarajan
 - [x] Dark theme cybersecurity aesthetic
 - [x] KiKi Pentester branding
 
-### API Endpoints
-- `POST /api/scans` - Start new scan
-- `GET /api/scans` - List all scans
-- `GET /api/scans/{id}` - Get scan details
-- `DELETE /api/scans/{id}` - Delete scan
-- `GET /api/scans/{id}/report` - Download PDF
-- `GET /api/owasp-categories` - OWASP categories
-- `WS /ws/scan/{id}` - Real-time updates
-
-## Prioritized Backlog
-
-### P0 - Critical (Done)
-- [x] Core scanning functionality
-- [x] OWASP Top 10 2025 coverage
-- [x] PDF report generation
-- [x] AI analysis integration
-- [x] KiKi Pentester branding
-- [x] About page with owner
-
-### P1 - High Priority
-- [ ] Authentication for multi-user support
-- [ ] Scheduled scans (cron)
-- [ ] Email notifications on scan completion
-- [ ] Export to JSON/CSV formats
-
-### P2 - Medium Priority
-- [ ] API key management for external scans
-- [ ] Comparison between scans
-- [ ] Vulnerability trending dashboard
-- [ ] Custom scan profiles
-
-### P3 - Future Enhancements
-- [ ] SAST source code analysis (requires code access)
-- [ ] Integration with CI/CD pipelines
-- [ ] Slack/Teams notifications
-- [ ] Custom vulnerability rules
+### PDF Report Contents
+- Executive Summary
+- AI Security Analysis
+- Severity Breakdown
+- OWASP Top 10 2025 Coverage
+- Testing Tools Used Table
+- Detailed Vulnerability Findings with:
+  - Tool name and test type
+  - Evidence
+  - Remediation steps
+  - Screenshot evidence
+- Target Application Screenshots
 
 ## Deployment
 - Target domain: www.kikipentester.com
@@ -116,6 +91,6 @@ Create an application that can perform Automated Web Application Penetration tes
 
 ## Next Tasks
 1. Deploy to www.kikipentester.com
-2. Add user authentication (JWT or OAuth)
-3. Implement scheduled scans
-4. Add email notification on scan completion
+2. Update About page with LinkedIn profile details
+3. Add user authentication
+4. Implement scheduled scans
