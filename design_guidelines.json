@@ -1,0 +1,134 @@
+{
+  "identity": {
+    "name": "E1",
+    "archetype": "The Anti-AI Designer",
+    "mission": "Create a high-end, unique, and functional UI for an Automated Web Application Penetration Testing tool.",
+    "tone": "Serious, Precise, Technical, Secure, 'Cyberpunk' but professional"
+  },
+  "typography": {
+    "primary_font": "Inter",
+    "secondary_font": "JetBrains Mono",
+    "import_statement": "@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');",
+    "usage": {
+      "headings": "font-mono tracking-tight font-bold",
+      "body": "font-sans tracking-normal",
+      "code": "font-mono text-sm",
+      "labels": "font-mono text-xs uppercase tracking-widest text-muted-foreground"
+    }
+  },
+  "colors": {
+    "theme": "dark",
+    "palette": {
+      "background": "#050505",
+      "surface": "#0A0A0A",
+      "surface_highlight": "#121212",
+      "border": "#27272A",
+      "primary": "#00FF94",
+      "primary_foreground": "#000000",
+      "secondary": "#6E44FF",
+      "secondary_foreground": "#FFFFFF",
+      "accent": "#27272A",
+      "accent_foreground": "#FFFFFF",
+      "destructive": "#FF3333",
+      "destructive_foreground": "#FFFFFF",
+      "warning": "#FFB800",
+      "info": "#00B8D9",
+      "success": "#00FF94",
+      "muted": "#71717A"
+    },
+    "gradients": {
+      "scan_beam": "linear-gradient(to bottom, transparent, rgba(0, 255, 148, 0.5), transparent)",
+      "glow_surface": "radial-gradient(circle at top center, rgba(110, 68, 255, 0.15), transparent 70%)"
+    }
+  },
+  "visual_enhancers": {
+    "borders": "1px solid rgba(255, 255, 255, 0.1)",
+    "glassmorphism": "backdrop-blur-xl bg-black/40 border border-white/10",
+    "shadows": {
+      "glow": "0 0 20px rgba(0, 255, 148, 0.15)",
+      "card": "0 4px 24px -12px rgba(0, 0, 0, 0.5)"
+    },
+    "textures": {
+      "scanlines": "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.2) 3px)",
+      "grid": "linear-gradient(to right, #27272A 1px, transparent 1px), linear-gradient(to bottom, #27272A 1px, transparent 1px)"
+    }
+  },
+  "components": {
+    "Button": {
+      "default": "rounded-md font-mono font-medium transition-all active:scale-95",
+      "primary": "bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_15px_rgba(0,255,148,0.3)]",
+      "outline": "border border-input bg-transparent hover:bg-accent hover:text-accent-foreground",
+      "ghost": "hover:bg-accent hover:text-accent-foreground"
+    },
+    "Card": {
+      "base": "rounded-lg border border-border bg-card text-card-foreground shadow-sm relative overflow-hidden",
+      "tech": "bg-black/60 backdrop-blur-md border-white/10 hover:border-primary/50 transition-colors duration-300"
+    },
+    "Input": {
+      "base": "flex h-12 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 font-mono"
+    },
+    "Badge": {
+      "base": "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+      "variants": {
+        "critical": "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
+        "high": "border-transparent bg-warning text-black hover:bg-warning/80",
+        "medium": "border-transparent bg-yellow-500/20 text-yellow-500 border-yellow-500/50",
+        "low": "border-transparent bg-blue-500/20 text-blue-500 border-blue-500/50",
+        "info": "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80"
+      }
+    }
+  },
+  "layout_strategies": {
+    "landing_page": {
+      "structure": "Centered 'Terminal' window for URL input. Minimalist but high-tech.",
+      "background": "Abstract network nodes or subtle grid animation.",
+      "elements": [
+        "Hero Text: 'Automated Web Application Penetration Testing'",
+        "Input Field: Large, prominent, monospace font.",
+        "Action Button: 'Initiate Scan' (Glowing)",
+        "Features Grid: 3-column layout highlighting OWASP Top 10, AI Analysis, PDF Reports."
+      ]
+    },
+    "dashboard": {
+      "structure": "Bento Grid (High Density).",
+      "grid_config": "grid-cols-1 md:grid-cols-4 gap-4 p-6",
+      "widgets": [
+        "Scan Progress (Full Width or Large Card)",
+        "Vulnerability Summary (Donut Chart)",
+        "Severity Breakdown (Bar Chart)",
+        "Live Logs (Terminal-style scroll area)",
+        "Recent Scans (List)"
+      ]
+    },
+    "report_page": {
+      "structure": "Document style with sidebar navigation.",
+      "typography": "Highly readable, clear hierarchy.",
+      "features": ["Export to PDF button (Floating or Top Right)", "AI Remediation Section (Highlighted)"]
+    }
+  },
+  "motion": {
+    "page_transition": "initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}",
+    "stagger_children": "variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } }}",
+    "scan_animation": "A glowing line moving across the progress bar or screen."
+  },
+  "image_urls": {
+    "hero_background": "https://images.unsplash.com/photo-1660836814985-8523a0d713b5?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2OTV8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGN5YmVyc2VjdXJpdHklMjBkaWdpdGFsJTIwbmV0d29yayUyMGRhcmslMjBiYWNrZ3JvdW5kfGVufDB8fHx8MTc3MDMxODAxOHww&ixlib=rb-4.1.0&q=85",
+    "scanning_visual": "https://images.unsplash.com/photo-1759661881353-5b9cc55e1cf4?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2ODl8MHwxfHNlYXJjaHw0fHxoYWNrZXIlMjB0eXBpbmclMjBjb2RlJTIwZGFyayUyMHJvb20lMjBhZXN0aGV0aWN8ZW58MHx8fHwxNzcwMzE4MDIyfDA&ixlib=rb-4.1.0&q=85"
+  },
+  "instructions_to_main_agent": [
+    "FORCE DARK MODE: Ensure the app is always in dark mode. Add 'dark' class to the html or body tag by default.",
+    "USE SHADCN: Use the existing shadcn components in /app/frontend/src/components/ui/ but CUSTOMIZE them via Tailwind classes to match the 'Obsidian' palette.",
+    "NO GRADIENT TEXT: Do not use gradient text for headings unless it's the main hero title. Keep it legible.",
+    "DATA VIZ: Use Recharts for charts. Style them to match the dark theme (dark tooltips, neon lines).",
+    "AI SECTION: Highlight the AI analysis section with a subtle purple glow (secondary color) to differentiate it from standard logs.",
+    "PDF EXPORT: Ensure the report page is printer-friendly or has a specific print stylesheet/component for PDF generation."
+  ],
+  "universal_guidelines": [
+    "Don't make generic centered layouts, simplistic gradients, and uniform styling.",
+    "Create depth through layered design elements with z-index hierarchy.",
+    "Use glass-morphism effects with backdrop filters (12-24px blur).",
+    "Every interaction needs micro-animations - hover states, transitions.",
+    "Use 2-3x more spacing than feels comfortable.",
+    "Subtle grain textures, noise overlays, custom cursors, selection states, and loading animations: separates good from extraordinary."
+  ]
+}
