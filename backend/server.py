@@ -2,6 +2,7 @@ from fastapi import FastAPI, APIRouter, HTTPException, BackgroundTasks, WebSocke
 from fastapi.responses import FileResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
+from starlette.responses import Response
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
@@ -26,12 +27,19 @@ from reportlab.lib.units import inch
 from io import BytesIO
 from emergentintegrations.llm.chat import LlmChat, UserMessage
 
-# Set Playwright browser path early
-import os
-os.environ['PLAYWRIGHT_BROWSERS_PATH'] = '/pw-browsers'
+# Set Playwright browser path early (for local development)
+os.environ.setdefault('PLAYWRIGHT_BROWSERS_PATH', '/pw-browsers')
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
+
+# Check if we're in production (Kubernetes) - disable screenshots if playwright not available
+SCREENSHOT_ENABLED = True
+try:
+    from playwright.async_api import async_playwright
+except ImportError:
+    SCREENSHOT_ENABLED = False
+    logging.warning("Playwright not available - screenshots disabled")
 
 # Screenshot capture
 async def capture_screenshot(url: str, output_path: str) -> bool:
