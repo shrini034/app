@@ -769,6 +769,23 @@ const VulnerabilityList = ({ vulnerabilities }) => {
             </AccordionTrigger>
             <AccordionContent className="px-4 pb-4">
               <div className="space-y-4 pt-2">
+                {/* Tool and Test Type Info */}
+                {(vuln.tool_used || vuln.test_type) && (
+                  <div className="flex flex-wrap gap-2">
+                    {vuln.tool_used && (
+                      <Badge variant="outline" className="font-mono text-xs border-cyan-500/50 text-cyan-400 bg-cyan-500/10">
+                        <Code className="w-3 h-3 mr-1" />
+                        {vuln.tool_used}
+                      </Badge>
+                    )}
+                    {vuln.test_type && (
+                      <Badge variant="outline" className="font-mono text-xs border-amber-500/50 text-amber-400 bg-amber-500/10">
+                        {vuln.test_type}
+                      </Badge>
+                    )}
+                  </div>
+                )}
+
                 <div>
                   <h4 className="text-xs font-mono text-zinc-500 uppercase tracking-wider mb-2">Description</h4>
                   <p className="text-zinc-300 text-sm">{vuln.description}</p>
