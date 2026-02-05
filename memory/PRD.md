@@ -1,4 +1,4 @@
-# PenTest Pro - Web Application Penetration Testing Tool
+# KiKi Pentester - Web Application Penetration Testing Tool
 
 ## Original Problem Statement
 Create an application that can perform Automated Web Application Penetration testing based on OWASP Top 10 2025 and share vulnerabilities found in it. Perform all Tests including SAST and DAST. GUI should ask for URL and perform testing at backend. Post testing share result in detailed Report with PDF download.
@@ -9,6 +9,8 @@ Create an application that can perform Automated Web Application Penetration tes
 - Crawl and test linked pages/domains
 - AI-powered vulnerability analysis using Claude Sonnet 4.5
 - OWASP Top 10: 2025 coverage
+- Application name: KiKi Pentester
+- Owner: Shrinivas Natarajan
 
 ## Architecture
 
@@ -39,6 +41,7 @@ Create an application that can perform Automated Web Application Penetration tes
 - AI-powered remediation suggestions
 - PDF report download
 - Scan history management
+- About page with owner information
 
 ## What's Been Implemented (Feb 5, 2026)
 
@@ -63,9 +66,11 @@ Create an application that can perform Automated Web Application Penetration tes
 - [x] Vulnerability results with severity breakdown
 - [x] OWASP Top 10 2025 coverage display
 - [x] AI Analysis section
-- [x] PDF download functionality
+- [x] PDF download functionality (fixed)
 - [x] Scan history page
+- [x] About page with owner: Shrinivas Natarajan
 - [x] Dark theme cybersecurity aesthetic
+- [x] KiKi Pentester branding
 
 ### API Endpoints
 - `POST /api/scans` - Start new scan
@@ -83,6 +88,8 @@ Create an application that can perform Automated Web Application Penetration tes
 - [x] OWASP Top 10 2025 coverage
 - [x] PDF report generation
 - [x] AI analysis integration
+- [x] KiKi Pentester branding
+- [x] About page with owner
 
 ### P1 - High Priority
 - [ ] Authentication for multi-user support
@@ -102,8 +109,13 @@ Create an application that can perform Automated Web Application Penetration tes
 - [ ] Slack/Teams notifications
 - [ ] Custom vulnerability rules
 
+## Deployment
+- Target domain: www.kikipentester.com
+- Deployment cost: 50 credits/month
+- Use Emergent Deploy → Custom Domain setup
+
 ## Next Tasks
-1. Add user authentication (JWT or OAuth)
-2. Implement scheduled scans
-3. Add email notification on scan completion
-4. Create API documentation with Swagger
+1. Deploy to www.kikipentester.com
+2. Add user authentication (JWT or OAuth)
+3. Implement scheduled scans
+4. Add email notification on scan completion
