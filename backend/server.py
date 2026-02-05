@@ -202,8 +202,14 @@ class SecurityScanner:
             if success:
                 self.screenshots.append(str(screenshot_path))
                 return str(screenshot_path)
+            else:
+                # Disable screenshots if first one fails to avoid repeated failures
+                if not self.screenshots:
+                    logger.warning("Screenshot capture failed, disabling for this scan")
+                    self.screenshot_enabled = False
         except Exception as e:
             logger.error(f"Screenshot error: {e}")
+            self.screenshot_enabled = False
         return None
         
     async def crawl(self, url: str, depth: int = 0, max_depth: int = 3):
