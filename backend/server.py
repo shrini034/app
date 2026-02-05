@@ -198,27 +198,6 @@ class SecurityScanner:
         self.vulnerabilities = []
         self.max_pages = 30  # Reduced for better performance
         self.timeout = 10
-    
-    async def capture_page_screenshot(self, url: str, name: str) -> Optional[str]:
-        """Capture screenshot of a page"""
-        if not self.screenshot_enabled:
-            return None
-        try:
-            safe_name = re.sub(r'[^\w\-]', '_', name)[:50]
-            screenshot_path = self.screenshots_dir / f"{safe_name}.png"
-            success = await capture_screenshot(url, str(screenshot_path))
-            if success:
-                self.screenshots.append(str(screenshot_path))
-                return str(screenshot_path)
-            else:
-                # Disable screenshots if first one fails to avoid repeated failures
-                if not self.screenshots:
-                    logger.warning("Screenshot capture failed, disabling for this scan")
-                    self.screenshot_enabled = False
-        except Exception as e:
-            logger.error(f"Screenshot error: {e}")
-            self.screenshot_enabled = False
-        return None
         
     async def crawl(self, url: str, depth: int = 0, max_depth: int = 3):
         """Crawl website and discover URLs"""
