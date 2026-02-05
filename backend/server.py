@@ -237,7 +237,9 @@ class SecurityScanner:
                             severity="Medium" if header in ['Content-Security-Policy', 'Strict-Transport-Security'] else "Low",
                             url=url,
                             evidence=f"Header '{header}' not found in response",
-                            remediation=f"Add the {header} header to your server configuration"
+                            remediation=f"Add the {header} header to your server configuration",
+                            tool_used="HTTP Header Analyzer (HTTPX)",
+                            test_type="DAST"
                         ))
                         
                 # Check for server version disclosure
@@ -252,7 +254,9 @@ class SecurityScanner:
                             severity="Low",
                             url=url,
                             evidence=f"Server header: {server}",
-                            remediation="Configure server to hide version information"
+                            remediation="Configure server to hide version information",
+                            tool_used="HTTP Header Analyzer (HTTPX)",
+                            test_type="DAST"
                         ))
                         
         except Exception as e:
