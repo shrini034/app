@@ -548,59 +548,47 @@ class SecurityScanner:
             raise
 
 # AI Analysis
-async def get_ai_analysis(vulnerabilities: List[Vulnerability]) -> tuple:
-    """Get AI-powered analysis and remediation suggestions"""
+async def get_ai_analysis(vulnerabilities: List[Vulnerability], timeout_seconds: int = 30) -> tuple:
+    """Get AI-powered analysis and remediation suggestions with timeout"""
     try:
         api_key = os.environ.get('EMERGENT_LLM_KEY')
-        if not api_key:
-            return None, None
+        if not api_key or not vulnerabilities:
+            return None, {}
         
         chat = LlmChat(
             api_key=api_key,
             session_id=f"scan-{uuid.uuid4()}",
-            system_message="""You are an expert cybersecurity analyst specializing in web application security. 
-            Analyze the vulnerabilities found and provide:
-            1. An executive summary of the security posture
-            2. Risk assessment prioritization
-            3. Detailed remediation steps for each vulnerability
-            Keep responses concise but actionable."""
+            system_message="""You are an expert cybersecurity analyst. Provide brief, actionable security analysis. Keep responses under 500 words."""
         ).with_model("anthropic", "claude-sonnet-4-5-20250929")
         
         vuln_summary = "\n".join([
-            f"- {v.severity}: {v.title} ({v.owasp_id}) at {v.url}"
-            for v in vulnerabilities[:20]  # Limit to top 20
+            f"- {v.severity}: {v.title} ({v.owasp_id})"
+            for v in vulnerabilities[:10]
         ])
         
         user_message = UserMessage(
-            text=f"""Analyze these vulnerabilities found during a web application penetration test:
+            text=f"""Briefly analyze these vulnerabilities:
 
 {vuln_summary}
 
-Provide:
-1. Executive Summary (2-3 sentences)
-2. Top 3 Priority Items to Fix
-3. Brief remediation guidance for the critical/high severity items"""
+Provide: 1) Executive Summary (2 sentences) 2) Top 3 priorities 3) Key remediation steps"""
         )
         
-        response = await chat.send_message(user_message)
+        # Use asyncio.wait_for for timeout
+        try:
+            response = await asyncio.wait_for(
+                chat.send_message(user_message),
+                timeout=timeout_seconds
+            )
+        except asyncio.TimeoutError:
+            logger.warning("AI analysis timed out")
+            return "AI analysis timed out. Please review vulnerabilities manually.", {}
         
-        # Get individual remediation for each vulnerability
-        vuln_remediations = {}
-        for vuln in vulnerabilities[:10]:  # Limit to avoid rate limits
-            try:
-                remediation_msg = UserMessage(
-                    text=f"Provide specific remediation steps for: {vuln.title} - {vuln.description}"
-                )
-                remediation_response = await chat.send_message(remediation_msg)
-                vuln_remediations[vuln.id] = remediation_response
-            except:
-                pass
-        
-        return response, vuln_remediations
+        return response, {}
         
     except Exception as e:
         logger.error(f"AI analysis error: {e}")
-        return None, None
+        return None, {}
 
 # PDF Report Generation
 def generate_pdf_report(scan: dict, output_path: str):
