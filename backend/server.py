@@ -1049,11 +1049,19 @@ async def download_report(scan_id: str):
     if not report_path.exists():
         raise HTTPException(status_code=404, detail="Report not found")
     
-    return FileResponse(
-        path=str(report_path),
-        filename=f"pentest_report_{scan_id}.pdf",
-        media_type="application/pdf"
-    )
+    # Read file content and return with proper headers
+    from starlette.responses import Response
+    with open(report_path, 'rb') as f:
+        content = f.read()
+    
+    headers = {
+        'Content-Disposition': f'attachment; filename="kiki_pentest_report_{scan_id}.pdf"',
+        'Content-Type': 'application/pdf',
+        'Content-Length': str(len(content)),
+        'Access-Control-Expose-Headers': 'Content-Disposition'
+    }
+    
+    return Response(content=content, media_type="application/pdf", headers=headers)
 
 @api_router.get("/owasp-categories")
 async def get_owasp_categories():
