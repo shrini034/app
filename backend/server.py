@@ -1021,8 +1021,8 @@ async def delete_scan(scan_id: str):
     return {"message": "Scan deleted"}
 
 @api_router.get("/scans/{scan_id}/report")
-async def download_report(scan_id: str):
-    """Download PDF report from MongoDB"""
+async def download_report(scan_id: str, inline: bool = False):
+    """Download or view PDF report from MongoDB"""
     # Get scan with report_data
     scan = await db.scans.find_one({"id": scan_id}, {"_id": 0, "status": 1, "report_data": 1})
     if not scan:
@@ -1042,11 +1042,17 @@ async def download_report(scan_id: str):
         logger.error(f"Error decoding PDF: {e}")
         raise HTTPException(status_code=500, detail="Error retrieving report")
     
+    # Use 'inline' for viewing in browser, 'attachment' for download
+    disposition = 'inline' if inline else 'attachment'
+    
     headers = {
-        'Content-Disposition': f'attachment; filename="kiki_pentest_report_{scan_id}.pdf"',
+        'Content-Disposition': f'{disposition}; filename="kiki_pentest_report_{scan_id}.pdf"',
         'Content-Type': 'application/pdf',
         'Content-Length': str(len(pdf_bytes)),
-        'Access-Control-Expose-Headers': 'Content-Disposition'
+        'Access-Control-Expose-Headers': 'Content-Disposition',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
     }
     
     return Response(content=pdf_bytes, media_type="application/pdf", headers=headers)
