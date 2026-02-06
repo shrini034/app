@@ -471,7 +471,7 @@ const ScanDashboard = () => {
                 </Button>
                 <Button 
                   data-testid="view-report-btn"
-                  onClick={() => window.open(`${API}/scans/${scanId}/report`, '_blank')}
+                  onClick={viewReport}
                   variant="outline"
                   className="font-mono border-zinc-700 text-zinc-300 hover:bg-zinc-800"
                 >
