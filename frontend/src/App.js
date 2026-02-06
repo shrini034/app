@@ -377,15 +377,15 @@ const ScanDashboard = () => {
       console.error("Download error:", error);
       // Fallback: open in new window
       toast.info("Opening PDF in new tab...");
-      window.open(`${API}/scans/${scanId}/report`, '_blank');
+      window.open(`${API}/scans/${scanId}/report?inline=true`, '_blank');
     } finally {
       setIsDownloading(false);
     }
   };
 
   const viewReport = () => {
-    // Open PDF in new tab
-    const reportUrl = `${API}/scans/${scanId}/report`;
+    // Open PDF in new tab for inline viewing
+    const reportUrl = `${API}/scans/${scanId}/report?inline=true`;
     window.open(reportUrl, '_blank', 'noopener,noreferrer');
   };
 
