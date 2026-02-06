@@ -338,7 +338,12 @@ const ScanDashboard = () => {
       const downloadUrl = `${API}/scans/${scanId}/report`;
       
       // Fetch the PDF as blob
-      const response = await fetch(downloadUrl);
+      const response = await fetch(downloadUrl, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/pdf',
+        },
+      });
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -346,27 +351,42 @@ const ScanDashboard = () => {
       
       const blob = await response.blob();
       
+      if (blob.size === 0) {
+        throw new Error('Empty PDF received');
+      }
+      
       // Create blob URL and trigger download
-      const blobUrl = window.URL.createObjectURL(blob);
+      const blobUrl = window.URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
       const link = document.createElement('a');
+      link.style.display = 'none';
       link.href = blobUrl;
-      link.download = `kiki_pentest_report_${scanId}.pdf`;
+      link.setAttribute('download', `kiki_pentest_report_${scanId}.pdf`);
       document.body.appendChild(link);
       link.click();
       
-      // Cleanup
+      // Cleanup after a short delay
       setTimeout(() => {
-        document.body.removeChild(link);
+        if (link.parentNode) {
+          document.body.removeChild(link);
+        }
         window.URL.revokeObjectURL(blobUrl);
-      }, 100);
+      }, 1000);
       
-      toast.success("Report downloaded successfully!");
+      toast.success("Report downloaded! Check your Downloads folder.");
     } catch (error) {
       console.error("Download error:", error);
-      toast.error("Download failed. Try the 'View PDF' button instead.");
+      // Fallback: open in new window
+      toast.info("Opening PDF in new tab...");
+      window.open(`${API}/scans/${scanId}/report`, '_blank');
     } finally {
       setIsDownloading(false);
     }
+  };
+
+  const viewReport = () => {
+    // Open PDF in new tab
+    const reportUrl = `${API}/scans/${scanId}/report`;
+    window.open(reportUrl, '_blank', 'noopener,noreferrer');
   };
 
   if (isLoading) {
